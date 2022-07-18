@@ -1,0 +1,7 @@
+index.php
+application/config/*
+.htaccess
+application/logs/*
+uploads/*
+update_table_sql.txt
+.idea
