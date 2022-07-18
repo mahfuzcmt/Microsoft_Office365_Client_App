@@ -2,8 +2,7 @@ import java.lang.reflect.Array;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.Scanner;
 import java.util.StringJoiner;
 
 public class MainApp {
@@ -36,7 +35,23 @@ public class MainApp {
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
-        System.out.println(url);
+        System.out.println("Click on the link to get authorize from Microsoft >> " + url);
+        getTokenByAuthCode();
     };
+
+
+    public static void getTokenByAuthCode(){
+        Scanner sc= new Scanner(System.in);
+        System.out.print("Enter the code when you will get back from Microsoft:");
+        String authCode = sc.nextLine();
+
+        System.out.println("Your authCode: "+authCode);
+
+
+        //TODO need to call API to validate the code and get Tokens
+        System.out.println("Your Token: "+authCode);
+        System.out.println("Your Refresh Token: "+authCode);
+
+    }
 
 };
