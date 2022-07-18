@@ -54,4 +54,18 @@ public class MainApp {
 
     }
 
+
+    public static void getRefreshToken(String refreshToken){
+        System.out.println("Current refreshToken is : "+refreshToken);
+        //TODO need to call API to get refreshed token
+        System.out.println("Token successfully refreshed and updated local DB");
+    }
+
+    public static void readEmails(String refreshToken){
+        System.out.println("System going to read user mail : ");
+        //TODO need to call API to get refreshed token
+        System.out.println("Processing mail data to save in database");
+        System.out.println("Done!");
+    }
+
 };
