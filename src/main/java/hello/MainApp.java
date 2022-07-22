@@ -192,6 +192,16 @@ public class MainApp {
         try {
             System.out.println("System going to read user mail : ");
             String mailReadEndpoint = "https://outlook.office.com/api/v2.0/me/MailFolders/" + folderName + "/messages?$top=1000&$expand=attachments&$orderby=receivedDateTime%20DESC";
+
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Enter Subject to filer the email: ");
+            String subject = sc.nextLine();
+
+            if(subject != null){
+                mailReadEndpoint +="&?$search=subject:"+URLEncoder.encode(subject, StandardCharsets.UTF_8);
+            }
+            //If you need more filtering here is the list of available properties >> https://docs.microsoft.com/en-us/Exchange/policy-and-compliance/ediscovery/message-properties-and-search-operators?redirectedfrom=MSDN&view=exchserver-2019
+
             URL url = new URL(mailReadEndpoint);
             URLConnection conn = url.openConnection();
             conn.setRequestProperty("Content-Type", "application/json");
