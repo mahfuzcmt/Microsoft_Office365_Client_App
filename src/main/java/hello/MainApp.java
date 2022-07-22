@@ -1,7 +1,6 @@
 package hello;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -210,20 +209,33 @@ public class MainApp {
 
             for (LinkedHashMap content : emails) {
                 LinkedHashMap body = (LinkedHashMap) content.get("Body");
+                System.out.println("=======================================");
                 System.out.println("Id: " + content.get("Id"));
+                System.out.println("=======================================");
                 System.out.println("CreatedDateTime: " + content.get("CreatedDateTime"));
+                System.out.println("=======================================");
                 System.out.println("ReceivedDateTime: " + content.get("ReceivedDateTime"));
+                System.out.println("================*************************=======================");
                 Boolean hasAttachments = (Boolean) content.get("HasAttachments");
+                System.out.println("================*********************=======================");
                 System.out.println("HasAttachments: " + hasAttachments);
-
+                System.out.println("================***************************=======================");
                 System.out.println("BodyPreview: " + content.get("BodyPreview"));
+                System.out.println("==============***************************=========================");
                 System.out.println("Body: " + body.get("Content"));
+                System.out.println("=============**************************==========================");
                 System.out.println("Sender: " + content.get("Sender").toString()); // to understand Array and JSON string
+                System.out.println("===============*********************========================");
                 System.out.println("ToRecipients: " + content.get("ToRecipients"));
+                System.out.println("================************************=======================");
                 System.out.println("CcRecipients: " + content.get("CcRecipients"));
+                System.out.println("================*************************=======================");
                 System.out.println("BccRecipients: " + content.get("BccRecipients"));
+                System.out.println("==============***********************************=========================");
                 System.out.println("ReplyTo: " + content.get("ReplyTo"));
+                System.out.println("===============***************************========================");
                 System.out.println("Attachments: " + content.get("Attachments"));
+                System.out.println("=================*****************************************======================");
                 if(hasAttachments){
                     //If there is attachment(s) then will print the sourceUrl
                     for (LinkedHashMap attachment : (ArrayList<LinkedHashMap>) content.get("Attachments")) {
