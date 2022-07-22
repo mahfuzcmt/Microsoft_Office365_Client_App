@@ -218,6 +218,7 @@ public class MainApp {
 
                 System.out.println("BodyPreview: " + content.get("BodyPreview"));
                 System.out.println("Body: " + body.get("Content"));
+                System.out.println("Sender: " + content.get("Sender"));
                 System.out.println("ToRecipients: " + content.get("ToRecipients"));
                 System.out.println("CcRecipients: " + content.get("CcRecipients"));
                 System.out.println("BccRecipients: " + content.get("BccRecipients"));
