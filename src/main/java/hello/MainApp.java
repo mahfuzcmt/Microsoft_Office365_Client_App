@@ -118,6 +118,24 @@ public class MainApp {
         saveCredential(responseText);
         System.out.print(responseText);
         // You need to save access_token to send/read/pull emails and refresh token to generate again access_token as access_token has a validity.
+
+        System.out.println("Reading user info.....");
+
+        String mailReadEndpoint = "https://outlook.office.com/api/v2.0/me";
+        URL userInfoUrl = new URL(mailReadEndpoint);
+        URLConnection userInoConn = userInfoUrl.openConnection();
+        userInoConn.setRequestProperty("Content-Type", "application/json");
+        userInoConn.setRequestProperty("Accept", "application/json");
+        userInoConn.setRequestProperty("Authorization", "Bearer " + getToken("access_token"));
+        userInoConn.setDoInput(true);
+        userInoConn.setUseCaches(false);
+
+        String userInoResponseText = getResponseText(userInoConn);
+
+        Map<String, Object> result = new ObjectMapper().readValue(userInoResponseText, HashMap.class);
+        System.out.println("Name: "+result.get("DisplayName"));
+        System.out.println("EmailAddress: "+result.get("EmailAddress")); // Save email address along wih the token info so that in next time you can get the token by searching email from your DB
+
     }
 
     public static String getToken(String tokenType) throws IOException {
@@ -174,7 +192,7 @@ public class MainApp {
     public static void readEmails(Integer retryCount) throws IOException {
         try {
             System.out.println("System going to read user mail : ");
-            String mailReadEndpoint = "https://outlook.office.com/api/v2.0/me/MailFolders/" + folderName + "/messages";
+            String mailReadEndpoint = "https://outlook.office.com/api/v2.0/me/MailFolders/" + folderName + "/messages?$top=1000&$expand=attachments&$orderby=receivedDateTime%20DESC";
             URL url = new URL(mailReadEndpoint);
             URLConnection conn = url.openConnection();
             conn.setRequestProperty("Content-Type", "application/json");
@@ -192,8 +210,28 @@ public class MainApp {
 
             for (LinkedHashMap content : emails) {
                 LinkedHashMap body = (LinkedHashMap) content.get("Body");
+                System.out.println("Id: " + content.get("Id"));
+                System.out.println("CreatedDateTime: " + content.get("CreatedDateTime"));
+                System.out.println("ReceivedDateTime: " + content.get("ReceivedDateTime"));
+                Boolean hasAttachments = (Boolean) content.get("HasAttachments");
+                System.out.println("HasAttachments: " + hasAttachments);
+
                 System.out.println("BodyPreview: " + content.get("BodyPreview"));
-                System.out.println("Body" + body.get("Content"));
+                System.out.println("Body: " + body.get("Content"));
+                System.out.println("ToRecipients: " + content.get("ToRecipients"));
+                System.out.println("CcRecipients: " + content.get("CcRecipients"));
+                System.out.println("BccRecipients: " + content.get("BccRecipients"));
+                System.out.println("ReplyTo: " + content.get("ReplyTo"));
+                System.out.println("Attachments: " + content.get("Attachments"));
+                if(hasAttachments){
+                    //If there is attachment(s) then will print the sourceUrl
+                    for (LinkedHashMap attachment : (ArrayList<LinkedHashMap>) content.get("Attachments")) {
+                        System.out.println("attachment URL : " + attachment.get("SourceUrl"));
+                    }
+                }
+                System.out.println("=======================================");
+                System.out.println("Full Content: "+content.toString());
+                System.out.println("=================================================");
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
