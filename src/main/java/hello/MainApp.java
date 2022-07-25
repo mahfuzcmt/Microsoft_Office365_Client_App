@@ -243,11 +243,12 @@ public class MainApp {
             for (LinkedHashMap content : emails) {
 
                 EmailMessages emailMessages = new EmailMessages();
+                LinkedHashMap body = (LinkedHashMap) content.get("Body");
 
                 emailMessages.setId(content.get("Id").toString());
                 emailMessages.setSender(content.get("Sender").toString());
                 emailMessages.setReplyTo(content.get("ReplyTo").toString());
-                emailMessages.setBody(content.get("Body").toString());
+                emailMessages.setBody(content.get(body.get("Content")).toString());
                 emailMessages.setSubject(content.get("Subject").toString());
                 emailMessages.setHasAttachments((Boolean) content.get("HasAttachments"));
                 emailMessages.setHasRead((Boolean) content.get("HasAttachments"));
@@ -260,7 +261,7 @@ public class MainApp {
                 Boolean hasAttachments = (Boolean) content.get("HasAttachments");
 
 
-                LinkedHashMap body = (LinkedHashMap) content.get("Body");
+
                 /*System.out.println("=======================================");
                 System.out.println("Id: " + content.get("Id"));
                 System.out.println("=======================================");
