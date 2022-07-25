@@ -15,6 +15,8 @@ public class EmailMessages {
 
 	private String Subject;
 
+	private String Body;
+
 	private Boolean HasAttachments;
 	private Boolean HasRead;// read email
 
@@ -123,12 +125,30 @@ public class EmailMessages {
 		Attachments = attachments;
 	}
 
-	@Override
-	public String toString() {
-		return "EmailMessages [Id=" + Id + ", Sender=" + Sender + ", ReplyTo=" + ReplyTo + ", Subject=" + Subject
-				+ ", HasAttachments=" + HasAttachments + ", HasRead=" + HasRead + ", CreatedDateTime=" + CreatedDateTime
-				+ ", ReceivedDateTime=" + ReceivedDateTime + ", ToRecipients=" + ToRecipients + ", CcRecipients="
-				+ CcRecipients + ", BccRecipients=" + BccRecipients + ", Attachments=" + Attachments + "]";
+	public String getBody() {
+		return Body;
 	}
 
+	public void setBody(String body) {
+		Body = body;
+	}
+
+	@Override
+	public String toString() {
+		return "EmailMessages{" +
+				"Id='" + Id + '\'' +
+				", Sender='" + Sender + '\'' +
+				", ReplyTo='" + ReplyTo + '\'' +
+				", Subject='" + Subject + '\'' +
+				", Body='" + Body + '\'' +
+				", HasAttachments=" + HasAttachments +
+				", HasRead=" + HasRead +
+				", CreatedDateTime=" + CreatedDateTime +
+				", ReceivedDateTime=" + ReceivedDateTime +
+				", ToRecipients=" + ToRecipients +
+				", CcRecipients=" + CcRecipients +
+				", BccRecipients=" + BccRecipients +
+				", Attachments=" + Attachments +
+				'}';
+	}
 }

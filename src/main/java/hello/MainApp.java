@@ -1,6 +1,7 @@
 package hello;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNullFormatVisitor;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -246,6 +247,7 @@ public class MainApp {
                 emailMessages.setId(content.get("Id").toString());
                 emailMessages.setSender(content.get("Sender").toString());
                 emailMessages.setReplyTo(content.get("ReplyTo").toString());
+                emailMessages.setBody(content.get("Body").toString());
                 emailMessages.setSubject(content.get("Subject").toString());
                 emailMessages.setHasAttachments((Boolean) content.get("HasAttachments"));
                 emailMessages.setHasRead((Boolean) content.get("HasAttachments"));
@@ -255,17 +257,17 @@ public class MainApp {
                 emailMessages.setCcRecipients(prepareEmailAddress((ArrayList<LinkedHashMap>) content.get("CcRecipients")));
                 emailMessages.setBccRecipients(prepareEmailAddress((ArrayList<LinkedHashMap>) content.get("BccRecipients")));
 
+                Boolean hasAttachments = (Boolean) content.get("HasAttachments");
 
 
                 LinkedHashMap body = (LinkedHashMap) content.get("Body");
-                System.out.println("=======================================");
+                /*System.out.println("=======================================");
                 System.out.println("Id: " + content.get("Id"));
                 System.out.println("=======================================");
                 System.out.println("CreatedDateTime: " + content.get("CreatedDateTime"));
                 System.out.println("=======================================");
                 System.out.println("ReceivedDateTime: " + content.get("ReceivedDateTime"));
                 System.out.println("================*************************=======================");
-                Boolean hasAttachments = (Boolean) content.get("HasAttachments");
                 System.out.println("================*********************=======================");
                 System.out.println("HasAttachments: " + hasAttachments);
                 System.out.println("================***************************=======================");
@@ -284,7 +286,7 @@ public class MainApp {
                 System.out.println("ReplyTo: " + content.get("ReplyTo"));
                 System.out.println("===============***************************========================");
                 System.out.println("Attachments: " + content.get("Attachments"));
-                System.out.println("=================*****************************************======================");
+                System.out.println("=================*****************************************======================");*/
 
                 ArrayList<Attachment> attachments = new ArrayList<>();
 
@@ -292,19 +294,18 @@ public class MainApp {
                     //If there is attachment(s) then will print the sourceUrl
                     for (LinkedHashMap attachment : (ArrayList<LinkedHashMap>) content.get("Attachments")) {
                         Attachment attachmentObj = new Attachment();
-                        System.out.println("attachment Name : " + attachment.get("Name"));
+                        /*System.out.println("attachment Name : " + attachment.get("Name"));
                         System.out.println("attachment ContentType : " + attachment.get("ContentType"));
-                        System.out.println("attachment ContentBytes : " + attachment.get("ContentBytes"));
+                        System.out.println("attachment ContentBytes : " + attachment.get("ContentBytes"));*/
                         attachmentObj.setName((String) attachment.get("Name"));
                         attachmentObj.setContentType((String) attachment.get("ContentType"));
-                        attachmentObj.setContentBytes((byte[]) attachment.get("ContentBytes"));
+                        attachmentObj.setContentBytes(Base64.getDecoder().decode((byte[]) attachment.get("ContentBytes")));
                         attachments.add(attachmentObj);
                     }
                 }
-                System.out.println("=======================================");
+               /* System.out.println("=======================================");
                 System.out.println("Full Content: "+content.toString());
-                System.out.println("=================================================");
-
+                System.out.println("=================================================");*/
 
                 emailMessagesList.add(emailMessages);
 
@@ -321,5 +322,14 @@ public class MainApp {
         System.out.println(emailMessagesList.size()+" Email(s) Found!");
         System.out.println("Done!");
     }
+
+    public static void DownloadExample(){
+       /* response.setContentType("application/octet-stream")
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + FilenameUtils.getName(pathInfo.path) + "\"")
+        response.outputStream << inputStream
+        response.outputStream.flush()
+        inputStream.close();*/
+    }
+
 
 };
