@@ -23,7 +23,7 @@ public class MainApp {
     public static String client_secret = "HB98Q~UEaVLKWeRfwUvbU2h4UJdWDr4.aY~S2cPG"; // Use your app's client_secret from azure portal ( you need to create under "Certificates & secrets" menu)
 
     //Pass the folder name from where you want to pull/read emails
-    public static String folderName = "inbox";
+    public static String folderName = "sentitems";
 
     public static void main(String[] args) {
         System.out.println("Application started....");
@@ -218,7 +218,7 @@ public class MainApp {
         List<EmailMessages> emailMessagesList = new ArrayList<>();
         try {
             System.out.println("System going to read user mail : ");
-            String mailReadEndpoint = "https://outlook.office.com/api/v2.0/me/MailFolders/" + folderName + "/messages?$top=1000&$expand=attachments&$orderby=receivedDateTime%20DESC";
+            String mailReadEndpoint = "https://outlook.office.com/api/v2.0/me/MailFolders/" + folderName + "/messages?$top=10&$expand=attachments&$orderby=receivedDateTime%20DESC";
 
             //Scanner sc = new Scanner(System.in);
             //System.out.print("Enter Subject to filer the email: ");
@@ -239,32 +239,32 @@ public class MainApp {
             conn.setUseCaches(false);
 
             String responseText = getResponseText(conn);
-            System.out.print(responseText);
+           // System.out.print(responseText);
 
             Map<String, Object> result = new ObjectMapper().readValue(responseText, HashMap.class);
             ArrayList<LinkedHashMap> emails = (ArrayList<LinkedHashMap>) result.get("value");
 
             for (LinkedHashMap content : emails) {
+                try {
+                    EmailMessages emailMessages = new EmailMessages();
+                    LinkedHashMap body = (LinkedHashMap) content.get("Body");
 
-                EmailMessages emailMessages = new EmailMessages();
-                LinkedHashMap body = (LinkedHashMap) content.get("Body");
+                    emailMessages.setId(content.get("Id").toString());
+                    emailMessages.setReplyTo(content.get("ReplyTo").toString());
+                    emailMessages.setBody(body.get("Content").toString());
+                    emailMessages.setSubject(content.get("Subject").toString());
+                    emailMessages.setHasAttachments((Boolean) content.get("HasAttachments"));
+                    emailMessages.setHasRead((Boolean) content.get("HasAttachments"));
+                    emailMessages.setCreatedDateTime(stringToCalendar(content.get("CreatedDateTime").toString()));
+                    emailMessages.setReceivedDateTime(stringToCalendar(content.get("ReceivedDateTime").toString()));
 
-                emailMessages.setId(content.get("Id").toString());
-                emailMessages.setReplyTo(content.get("ReplyTo").toString());
-                emailMessages.setBody(body.get("Content").toString());
-                emailMessages.setSubject(content.get("Subject").toString());
-                emailMessages.setHasAttachments((Boolean) content.get("HasAttachments"));
-                emailMessages.setHasRead((Boolean) content.get("HasAttachments"));
-                emailMessages.setCreatedDateTime(stringToCalendar(content.get("CreatedDateTime").toString()));
-                emailMessages.setReceivedDateTime(stringToCalendar(content.get("ReceivedDateTime").toString()));
+                    emailMessages.setSender(getEmailAddress((LinkedHashMap) content.get("Sender")));
 
-                emailMessages.setSender(getEmailAddress((LinkedHashMap) content.get("Sender")));
+                    emailMessages.setToRecipients(prepareEmailAddress((ArrayList<LinkedHashMap>) content.get("ToRecipients")));
+                    emailMessages.setCcRecipients(prepareEmailAddress((ArrayList<LinkedHashMap>) content.get("CcRecipients")));
+                    emailMessages.setBccRecipients(prepareEmailAddress((ArrayList<LinkedHashMap>) content.get("BccRecipients")));
 
-                emailMessages.setToRecipients(prepareEmailAddress((ArrayList<LinkedHashMap>) content.get("ToRecipients")));
-                emailMessages.setCcRecipients(prepareEmailAddress((ArrayList<LinkedHashMap>) content.get("CcRecipients")));
-                emailMessages.setBccRecipients(prepareEmailAddress((ArrayList<LinkedHashMap>) content.get("BccRecipients")));
-
-                Boolean hasAttachments = (Boolean) content.get("HasAttachments");
+                    Boolean hasAttachments = (Boolean) content.get("HasAttachments");
 
 
 
@@ -295,26 +295,29 @@ public class MainApp {
                 System.out.println("Attachments: " + content.get("Attachments"));
                 System.out.println("=================*****************************************======================");*/
 
-                ArrayList<Attachment> attachments = new ArrayList<>();
+                    ArrayList<Attachment> attachments = new ArrayList<>();
 
-                if (hasAttachments) {
-                    //If there is attachment(s) then will print the sourceUrl
-                    for (LinkedHashMap attachment : (ArrayList<LinkedHashMap>) content.get("Attachments")) {
-                        Attachment attachmentObj = new Attachment();
+                    if (hasAttachments) {
+                        //If there is attachment(s) then will print the sourceUrl
+                        for (LinkedHashMap attachment : (ArrayList<LinkedHashMap>) content.get("Attachments")) {
+                            Attachment attachmentObj = new Attachment();
                         /*System.out.println("attachment Name : " + attachment.get("Name"));
                         System.out.println("attachment ContentType : " + attachment.get("ContentType"));
                         System.out.println("attachment ContentBytes : " + attachment.get("ContentBytes"));*/
-                        attachmentObj.setName((String) attachment.get("Name"));
-                        attachmentObj.setContentType((String) attachment.get("ContentType"));
-                        attachmentObj.setContentBytes(Base64.getDecoder().decode((byte[]) attachment.get("ContentBytes")));
-                        attachments.add(attachmentObj);
+                            attachmentObj.setName((String) attachment.get("Name"));
+                            attachmentObj.setContentType((String) attachment.get("ContentType"));
+                            attachmentObj.setContentBytes(Base64.getDecoder().decode((byte[]) attachment.get("ContentBytes")));
+                            attachments.add(attachmentObj);
+                        }
                     }
-                }
                /* System.out.println("=======================================");
                 System.out.println("Full Content: "+content.toString());
                 System.out.println("=================================================");*/
 
-                emailMessagesList.add(emailMessages);
+                    emailMessagesList.add(emailMessages);
+                } catch (Exception e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
 
             }
         } catch (Exception e) {
