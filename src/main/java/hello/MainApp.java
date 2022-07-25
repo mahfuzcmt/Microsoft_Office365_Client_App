@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class MainApp {
@@ -188,14 +189,35 @@ public class MainApp {
         System.out.println("Token successfully refreshed!");
     }
 
+    public static List<EmailAddress> prepareEmailAddress(ArrayList<LinkedHashMap> emails){
+        List<EmailAddress> emailAddressList = new ArrayList<>();
+        for (LinkedHashMap email : emails) {
+            EmailAddress emailAddress = new EmailAddress();
+            LinkedHashMap emailData = (LinkedHashMap) email.get("EmailAddress");
+            emailAddress.setName(emailData.get("Name").toString());
+            emailAddress.setAddress((String) emailData.get("Address"));
+            emailAddressList.add(emailAddress);
+        }
+        return emailAddressList;
+    }
+
+    public static  Calendar stringToCalendar(String createdDateTime) throws java.text.ParseException {
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
+        cal.setTime(sdf.parse(createdDateTime));
+        return cal;
+    };
+
+
     public static void readEmails(Integer retryCount) throws IOException {
+        List<EmailMessages> emailMessagesList = new ArrayList<>();
         try {
             System.out.println("System going to read user mail : ");
             String mailReadEndpoint = "https://outlook.office.com/api/v2.0/me/MailFolders/" + folderName + "/messages?$top=1000&$expand=attachments&$orderby=receivedDateTime%20DESC";
 
-            Scanner sc = new Scanner(System.in);
-            System.out.print("Enter Subject to filer the email: ");
-            String subject = sc.nextLine();
+            //Scanner sc = new Scanner(System.in);
+            //System.out.print("Enter Subject to filer the email: ");
+            String subject = null; //sc.nextLine();
 
             if(subject != null){
                 mailReadEndpoint +="&?$search=subject:"+URLEncoder.encode(subject, StandardCharsets.UTF_8);
@@ -218,6 +240,23 @@ public class MainApp {
             ArrayList<LinkedHashMap> emails = (ArrayList<LinkedHashMap>) result.get("value");
 
             for (LinkedHashMap content : emails) {
+
+                EmailMessages emailMessages = new EmailMessages();
+
+                emailMessages.setId(content.get("Id").toString());
+                emailMessages.setSender(content.get("Sender").toString());
+                emailMessages.setReplyTo(content.get("ReplyTo").toString());
+                emailMessages.setSubject(content.get("Subject").toString());
+                emailMessages.setHasAttachments((Boolean) content.get("HasAttachments"));
+                emailMessages.setHasRead((Boolean) content.get("HasAttachments"));
+                emailMessages.setCreatedDateTime(stringToCalendar(content.get("CreatedDateTime").toString()));
+                emailMessages.setCreatedDateTime(stringToCalendar(content.get("ReceivedDateTime").toString()));
+                emailMessages.setToRecipients(prepareEmailAddress((ArrayList<LinkedHashMap>) content.get("ToRecipients")));
+                emailMessages.setCcRecipients(prepareEmailAddress((ArrayList<LinkedHashMap>) content.get("CcRecipients")));
+                emailMessages.setBccRecipients(prepareEmailAddress((ArrayList<LinkedHashMap>) content.get("BccRecipients")));
+
+
+
                 LinkedHashMap body = (LinkedHashMap) content.get("Body");
                 System.out.println("=======================================");
                 System.out.println("Id: " + content.get("Id"));
@@ -246,15 +285,29 @@ public class MainApp {
                 System.out.println("===============***************************========================");
                 System.out.println("Attachments: " + content.get("Attachments"));
                 System.out.println("=================*****************************************======================");
-                if(hasAttachments){
+
+                ArrayList<Attachment> attachments = new ArrayList<>();
+
+                if (hasAttachments) {
                     //If there is attachment(s) then will print the sourceUrl
                     for (LinkedHashMap attachment : (ArrayList<LinkedHashMap>) content.get("Attachments")) {
-                        System.out.println("attachment URL : " + attachment.get("SourceUrl"));
+                        Attachment attachmentObj = new Attachment();
+                        System.out.println("attachment Name : " + attachment.get("Name"));
+                        System.out.println("attachment ContentType : " + attachment.get("ContentType"));
+                        System.out.println("attachment ContentBytes : " + attachment.get("ContentBytes"));
+                        attachmentObj.setName((String) attachment.get("Name"));
+                        attachmentObj.setContentType((String) attachment.get("ContentType"));
+                        attachmentObj.setContentBytes((byte[]) attachment.get("ContentBytes"));
+                        attachments.add(attachmentObj);
                     }
                 }
                 System.out.println("=======================================");
                 System.out.println("Full Content: "+content.toString());
                 System.out.println("=================================================");
+
+
+                emailMessagesList.add(emailMessages);
+
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
@@ -265,6 +318,7 @@ public class MainApp {
             }
         }
 
+        System.out.println(emailMessagesList.size()+" Email(s) Found!");
         System.out.println("Done!");
     }
 
