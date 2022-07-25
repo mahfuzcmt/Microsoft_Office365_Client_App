@@ -207,7 +207,7 @@ public class MainApp {
     }
 
     public static  Calendar stringToCalendar(String createdDateTime) throws java.text.ParseException {
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT+4"));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
         cal.setTime(sdf.parse(createdDateTime));
         return cal;
@@ -256,7 +256,7 @@ public class MainApp {
                 emailMessages.setHasAttachments((Boolean) content.get("HasAttachments"));
                 emailMessages.setHasRead((Boolean) content.get("HasAttachments"));
                 emailMessages.setCreatedDateTime(stringToCalendar(content.get("CreatedDateTime").toString()));
-                emailMessages.setCreatedDateTime(stringToCalendar(content.get("ReceivedDateTime").toString()));
+                emailMessages.setReceivedDateTime(stringToCalendar(content.get("ReceivedDateTime").toString()));
 
                 emailMessages.setSender(getEmailAddress((LinkedHashMap) content.get("Sender")));
 
