@@ -248,7 +248,7 @@ public class MainApp {
                 emailMessages.setId(content.get("Id").toString());
                 emailMessages.setSender(content.get("Sender").toString());
                 emailMessages.setReplyTo(content.get("ReplyTo").toString());
-                emailMessages.setBody(content.get(body.get("Content")).toString());
+                emailMessages.setBody(body.get("Content").toString());
                 emailMessages.setSubject(content.get("Subject").toString());
                 emailMessages.setHasAttachments((Boolean) content.get("HasAttachments"));
                 emailMessages.setHasRead((Boolean) content.get("HasAttachments"));
