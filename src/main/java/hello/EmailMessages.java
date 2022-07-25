@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class EmailMessages {
 
 	private String Id;
-	private String Sender;
 
 	private String ReplyTo;
 
@@ -23,6 +22,8 @@ public class EmailMessages {
 	private Calendar CreatedDateTime;
 	private Calendar ReceivedDateTime;
 
+	private EmailAddress Sender;
+
 	private List<EmailAddress> ToRecipients;
 	private List<EmailAddress> CcRecipients;
 	private List<EmailAddress> BccRecipients;
@@ -35,14 +36,6 @@ public class EmailMessages {
 
 	public void setId(String id) {
 		Id = id;
-	}
-
-	public String getSender() {
-		return Sender;
-	}
-
-	public void setSender(String sender) {
-		Sender = sender;
 	}
 
 	public String getReplyTo() {
@@ -59,6 +52,14 @@ public class EmailMessages {
 
 	public void setSubject(String subject) {
 		Subject = subject;
+	}
+
+	public String getBody() {
+		return Body;
+	}
+
+	public void setBody(String body) {
+		Body = body;
 	}
 
 	public Boolean getHasAttachments() {
@@ -93,6 +94,14 @@ public class EmailMessages {
 		ReceivedDateTime = receivedDateTime;
 	}
 
+	public EmailAddress getSender() {
+		return Sender;
+	}
+
+	public void setSender(EmailAddress sender) {
+		Sender = sender;
+	}
+
 	public List<EmailAddress> getToRecipients() {
 		return ToRecipients;
 	}
@@ -125,19 +134,10 @@ public class EmailMessages {
 		Attachments = attachments;
 	}
 
-	public String getBody() {
-		return Body;
-	}
-
-	public void setBody(String body) {
-		Body = body;
-	}
-
 	@Override
 	public String toString() {
 		return "EmailMessages{" +
 				"Id='" + Id + '\'' +
-				", Sender='" + Sender + '\'' +
 				", ReplyTo='" + ReplyTo + '\'' +
 				", Subject='" + Subject + '\'' +
 				", Body='" + Body + '\'' +
@@ -145,6 +145,7 @@ public class EmailMessages {
 				", HasRead=" + HasRead +
 				", CreatedDateTime=" + CreatedDateTime +
 				", ReceivedDateTime=" + ReceivedDateTime +
+				", Sender=" + Sender +
 				", ToRecipients=" + ToRecipients +
 				", CcRecipients=" + CcRecipients +
 				", BccRecipients=" + BccRecipients +

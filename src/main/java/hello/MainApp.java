@@ -190,14 +190,18 @@ public class MainApp {
         System.out.println("Token successfully refreshed!");
     }
 
+    public static EmailAddress getEmailAddress(LinkedHashMap email){
+        EmailAddress emailAddress = new EmailAddress();
+        LinkedHashMap emailData = (LinkedHashMap) email.get("EmailAddress");
+        emailAddress.setName(emailData.get("Name").toString());
+        emailAddress.setAddress((String) emailData.get("Address"));
+        return emailAddress;
+    }
+
     public static List<EmailAddress> prepareEmailAddress(ArrayList<LinkedHashMap> emails){
         List<EmailAddress> emailAddressList = new ArrayList<>();
         for (LinkedHashMap email : emails) {
-            EmailAddress emailAddress = new EmailAddress();
-            LinkedHashMap emailData = (LinkedHashMap) email.get("EmailAddress");
-            emailAddress.setName(emailData.get("Name").toString());
-            emailAddress.setAddress((String) emailData.get("Address"));
-            emailAddressList.add(emailAddress);
+            emailAddressList.add(getEmailAddress(email));
         }
         return emailAddressList;
     }
@@ -246,7 +250,6 @@ public class MainApp {
                 LinkedHashMap body = (LinkedHashMap) content.get("Body");
 
                 emailMessages.setId(content.get("Id").toString());
-                emailMessages.setSender(content.get("Sender").toString());
                 emailMessages.setReplyTo(content.get("ReplyTo").toString());
                 emailMessages.setBody(body.get("Content").toString());
                 emailMessages.setSubject(content.get("Subject").toString());
@@ -254,6 +257,9 @@ public class MainApp {
                 emailMessages.setHasRead((Boolean) content.get("HasAttachments"));
                 emailMessages.setCreatedDateTime(stringToCalendar(content.get("CreatedDateTime").toString()));
                 emailMessages.setCreatedDateTime(stringToCalendar(content.get("ReceivedDateTime").toString()));
+
+                emailMessages.setSender(getEmailAddress((LinkedHashMap) content.get("Sender")));
+
                 emailMessages.setToRecipients(prepareEmailAddress((ArrayList<LinkedHashMap>) content.get("ToRecipients")));
                 emailMessages.setCcRecipients(prepareEmailAddress((ArrayList<LinkedHashMap>) content.get("CcRecipients")));
                 emailMessages.setBccRecipients(prepareEmailAddress((ArrayList<LinkedHashMap>) content.get("BccRecipients")));
