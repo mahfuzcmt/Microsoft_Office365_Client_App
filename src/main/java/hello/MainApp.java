@@ -306,7 +306,13 @@ public class MainApp {
                         System.out.println("attachment ContentBytes : " + attachment.get("ContentBytes"));*/
                             attachmentObj.setName((String) attachment.get("Name"));
                             attachmentObj.setContentType((String) attachment.get("ContentType"));
-                            attachmentObj.setContentBytes(Base64.getDecoder().decode((byte[]) attachment.get("ContentBytes")));
+                            //attachmentObj.setContentBytes((byte[]) attachment.get("ContentBytes"));
+
+                            try (FileOutputStream stream = new FileOutputStream(appRootPath+"/resources/"+attachmentObj.getName())) {
+                                stream.write(Base64.getDecoder().decode(attachment.get("ContentBytes").toString()));
+                            } catch (IOException exception) {
+                                System.out.println("Error: "+exception.getMessage());
+                            }
                             attachments.add(attachmentObj);
                         }
                     }
@@ -315,9 +321,6 @@ public class MainApp {
                 System.out.println("=================================================");*/
 
                     emailMessagesList.add(emailMessages);
-                    if(hasAttachments){
-                        makeResources(attachments);
-                    }
                 } catch (Exception e) {
                     System.out.println("Error: " + e.getMessage());
                 }
@@ -336,15 +339,6 @@ public class MainApp {
         System.out.println("Done!");
     }
 
-
-    public static void makeResources(ArrayList<Attachment> attachments) throws IOException {
-        for (Attachment attachment : attachments) {
-            try (FileOutputStream fos = new FileOutputStream(appRootPath)) {
-                fos.write(attachment.getContentBytes());
-            }
-        }
-
-    }
 
     public static void DownloadExample(){
        /* response.setContentType("application/octet-stream")
