@@ -1,7 +1,6 @@
 package hello;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNullFormatVisitor;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -29,13 +28,14 @@ public class MainApp {
         System.out.println("Application started....");
         try {
             //to generate the authorize url
-            authInfoUrlForOffice();
+            //authInfoUrlForOffice("inbox");
+            authInfoUrlForOffice("sentitems");
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
         }
     }
 
-    public static void authInfoUrlForOffice() throws IOException {
+    public static void authInfoUrlForOffice(String folderName) throws IOException {
         String url = null;
         Boolean isTokenFound = false;
         isTokenFound = getToken("access_token") != null;
@@ -65,7 +65,7 @@ public class MainApp {
             if (!isTokenFound) {
                 getTokenByAuthCode();
             }
-            readEmails(0);
+            readEmails(folderName, 0);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -214,7 +214,7 @@ public class MainApp {
     };
 
 
-    public static void readEmails(Integer retryCount) throws IOException {
+    public static void readEmails(String folderName, Integer retryCount) throws IOException {
         List<EmailMessages> emailMessagesList = new ArrayList<>();
         try {
             System.out.println("System going to read user mail : ");
@@ -315,6 +315,9 @@ public class MainApp {
                 System.out.println("=================================================");*/
 
                     emailMessagesList.add(emailMessages);
+                    if(hasAttachments){
+                        makeResources(attachments);
+                    }
                 } catch (Exception e) {
                     System.out.println("Error: " + e.getMessage());
                 }
@@ -325,12 +328,22 @@ public class MainApp {
             //Suppose Email not pulling due to the access_token is expired. So we can retry once again after refreshing access token
             if (retryCount == 0) {
                 refreshToken();
-                readEmails(1);
+                readEmails(folderName, 1);
             }
         }
 
         System.out.println(emailMessagesList.size()+" Email(s) Found!");
         System.out.println("Done!");
+    }
+
+
+    public static void makeResources(ArrayList<Attachment> attachments) throws IOException {
+        for (Attachment attachment : attachments) {
+            try (FileOutputStream fos = new FileOutputStream(appRootPath)) {
+                fos.write(attachment.getContentBytes());
+            }
+        }
+
     }
 
     public static void DownloadExample(){
