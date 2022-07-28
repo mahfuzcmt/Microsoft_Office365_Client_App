@@ -223,9 +223,13 @@ public class MainApp {
             //Scanner sc = new Scanner(System.in);
             //System.out.print("Enter Subject to filer the email: ");
             String subject = null; //sc.nextLine();
+            String from = null; //sc.nextLine();
 
             if(subject != null){
                 mailReadEndpoint +="&?$search=subject:"+URLEncoder.encode(subject, StandardCharsets.UTF_8);
+            }
+            if(from != null){
+                mailReadEndpoint +="&?$search=from:"+URLEncoder.encode(from, StandardCharsets.UTF_8);
             }
             //If you need more filtering here is the list of available properties >> https://docs.microsoft.com/en-us/Exchange/policy-and-compliance/ediscovery/message-properties-and-search-operators?redirectedfrom=MSDN&view=exchserver-2019
 
