@@ -6,6 +6,9 @@ import org.json.simple.parser.ParseException;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -29,7 +32,7 @@ public class MainApp {
         try {
             //to generate the authorize url
             //authInfoUrlForOffice("inbox");
-            //uthInfoUrlForOffice("sentitems");
+            //authInfoUrlForOffice("sentitems");
 
 
             //prepare mail object
@@ -37,7 +40,9 @@ public class MainApp {
             mailData.put("mailContent", "<h1> Hey</h1>");
 
             //SendMail.sendEmail(mailData, getToken("access_token"), 0);
-            getAttachments("AQMkADAwATNiZmYAZC0xMzhmLTc4ZmYALTAwAi0wMAoARgAAA_LhcNSfXdJJlwyQ0nsChsEHAF3tBPZShnZEqBM1afPoEEQAAAIBCQAAAF3tBPZShnZEqBM1afPoEEQAA9B8L54AAAA=", 0);
+            //getAttachments("AQMkADAwATNiZmYAZC0xMzhmLTc4ZmYALTAwAi0wMAoARgAAA_LhcNSfXdJJlwyQ0nsChsEHAF3tBPZShnZEqBM1afPoEEQAAAIBCQAAAF3tBPZShnZEqBM1afPoEEQAA9B8L50AAAA", 0);
+            updateIsRead("AQMkADAwATNiZmYAZC0xMzhmLTc4ZmYALTAwAi0wMAoARgAAA_LhcNSfXdJJlwyQ0nsChsEHAF3tBPZShnZEqBM1afPoEEQAAAIBCQAAAF3tBPZShnZEqBM1afPoEEQAA9B8L50AAAA=", false, 0);
+            deleteMail("AQMkADAwATNiZmYAZC0xMzhmLTc4ZmYALTAwAi0wMAoARgAAA_LhcNSfXdJJlwyQ0nsChsEHAF3tBPZShnZEqBM1afPoEEQAAAIBCQAAAF3tBPZShnZEqBM1afPoEEQAA9B8L50AAAA=", 0);
 
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
@@ -53,6 +58,8 @@ public class MainApp {
                 ArrayList<String> scopes = new ArrayList<String>();
                 scopes.add("offline_access");
                 scopes.add("openid");
+                scopes.add("https://outlook.office.com/mail.readwrite");
+                scopes.add("https://outlook.office.com/mail.readwrite.shared");
                 scopes.add("https://outlook.office.com/mail.read");
                 scopes.add("https://outlook.office.com/mail.send");
 
@@ -86,7 +93,7 @@ public class MainApp {
         try {
             reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
         } catch (Exception e) {
-            System.out.println("error");
+            System.out.println("error: "+e.getMessage());
             reader = new BufferedReader(new InputStreamReader(((HttpsURLConnection) conn).getErrorStream()));
         }
         String line;
@@ -316,7 +323,7 @@ public class MainApp {
                             Attachment attachmentObj = new Attachment();
                         /*System.out.println("attachment Name : " + attachment.get("Name"));
                         System.out.println("attachment ContentType : " + attachment.get("ContentType"));
-                        System.out.println("attachment ContentBytes : " + attachment.get("ContentBytes"));*/
+                        System.out.println("2attachment ContentBytes : " + attachment.get("ContentBytes"));*/
                             attachmentObj.setName((String) attachment.get("Name"));
                             attachmentObj.setContentType((String) attachment.get("ContentType"));
                             //attachmentObj.setContentBytes((byte[]) attachment.get("ContentBytes"));
@@ -404,6 +411,85 @@ public class MainApp {
             if (retryCount == 0) {
                 refreshToken();
                 getAttachments(folderName, 1);
+            }
+        }
+    }
+
+    public static void allowMethods(String methods) {
+        try {
+            Field methodsField = HttpURLConnection.class.getDeclaredField("methods");
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(methodsField, methodsField.getModifiers() & ~Modifier.FINAL);
+            methodsField.setAccessible(true);
+            String[] oldMethods = (String[]) methodsField.get(null);
+            Set<String> methodsSet = new LinkedHashSet<>(Arrays.asList(oldMethods));
+            methodsSet.addAll(Arrays.asList(methods));
+            String[] newMethods = methodsSet.toArray(new String[0]);
+            methodsField.set(null, newMethods);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public static void updateIsRead(String messageId, Boolean isRead, Integer retryCount) throws IOException {
+        try {
+            String requestURL = "https://outlook.office.com/api/v2.0/me/messages/" + messageId;
+            String post = "{IsRead:" + isRead + "}";
+
+            String responseText  = "";
+            allowMethods("PATCH");
+            HttpURLConnection conn = (HttpURLConnection) new URL(requestURL).openConnection();
+            conn.setRequestMethod("PATCH");
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty("Authorization", "Bearer " + getToken("access_token"));
+
+            byte[] out = post.getBytes(StandardCharsets.UTF_8);
+            OutputStream stream = conn.getOutputStream();
+            stream.write(out);
+            Integer responseCode = conn.getResponseCode();
+            BufferedReader br;
+            String line = "";
+            if (responseCode == 200) {
+                br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                while ((line = br.readLine()) != null) {
+                    responseText += line + "\n";
+                }
+            } else {
+                br = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+                while ((line = br.readLine()) != null) {
+                    responseText += line + "\n";
+                }
+            }
+            br.close();
+            conn.disconnect();
+            System.out.println("Response: " + responseText);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            if (retryCount == 0) {
+                refreshToken();
+                updateIsRead(messageId, isRead, 1);
+            }
+        }
+    }
+
+    public static void deleteMail(String messageId, Integer retryCount) throws IOException {
+        try {
+            String requestURL = "https://outlook.office.com/api/v2.0/me/messages/" + messageId;
+            HttpURLConnection conn = (HttpURLConnection) new URL(requestURL).openConnection();
+            conn.setRequestMethod("DELETE");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty("Authorization", "Bearer " + getToken("access_token"));
+            String responseText = getResponseText(conn);
+            System.out.println("Response: " + responseText);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            if (retryCount == 0) {
+                refreshToken();
+                deleteMail(messageId, 1);
             }
         }
     }
