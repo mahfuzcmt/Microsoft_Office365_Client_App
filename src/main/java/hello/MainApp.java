@@ -29,7 +29,14 @@ public class MainApp {
         try {
             //to generate the authorize url
             //authInfoUrlForOffice("inbox");
-            authInfoUrlForOffice("sentitems");
+            //uthInfoUrlForOffice("sentitems");
+
+
+            //prepare mail object
+            LinkedHashMap mailData = new LinkedHashMap();
+            mailData.put("mailContent", "<h1> Hey</h1>");
+
+            SendMail.sendEmail(mailData, getToken("access_token"), 0);
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
         }
@@ -218,7 +225,7 @@ public class MainApp {
         List<EmailMessages> emailMessagesList = new ArrayList<>();
         try {
             System.out.println("System going to read user mail : ");
-            String mailReadEndpoint = "https://outlook.office.com/api/v2.0/me/MailFolders/" + folderName + "/messages?$top=10&$expand=attachments&$orderby=receivedDateTime%20DESC";
+            String mailReadEndpoint = "https://outlook.office.com/api/v2.0/me/MailFolders/" + folderName + "/messages?$top=10&$orderby=receivedDateTime%20DESC";
 
             //Scanner sc = new Scanner(System.in);
             //System.out.print("Enter Subject to filer the email: ");
@@ -312,7 +319,12 @@ public class MainApp {
                             attachmentObj.setContentType((String) attachment.get("ContentType"));
                             //attachmentObj.setContentBytes((byte[]) attachment.get("ContentBytes"));
 
-                            try (FileOutputStream stream = new FileOutputStream(appRootPath+"/resources/"+attachmentObj.getName())) {
+                           File file = new File(appRootPath+"/resources/"+content.get("ConversationIndex"));
+                           if(!file.exists()){
+                               file.mkdir();
+                           }
+
+                            try (FileOutputStream stream = new FileOutputStream(file.getAbsolutePath()+"/"+attachmentObj.getName())) {
                                 stream.write(Base64.getDecoder().decode(attachment.get("ContentBytes").toString()));
                             } catch (IOException exception) {
                                 System.out.println("Error: "+exception.getMessage());
