@@ -36,7 +36,9 @@ public class MainApp {
             LinkedHashMap mailData = new LinkedHashMap();
             mailData.put("mailContent", "<h1> Hey</h1>");
 
-            SendMail.sendEmail(mailData, getToken("access_token"), 0);
+            //SendMail.sendEmail(mailData, getToken("access_token"), 0);
+            getAttachments("AQMkADAwATNiZmYAZC0xMzhmLTc4ZmYALTAwAi0wMAoARgAAA_LhcNSfXdJJlwyQ0nsChsEHAF3tBPZShnZEqBM1afPoEEQAAAIBCQAAAF3tBPZShnZEqBM1afPoEEQAA9B8L54AAAA=", 0);
+
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
         }
@@ -364,5 +366,46 @@ public class MainApp {
         inputStream.close();*/
     }
 
+
+    public static void getAttachments(String messageId, Integer retryCount) throws IOException {
+        try{
+            String mailReadEndpoint = "https://outlook.office.com/api/v2.0/me/messages/"+messageId+"/attachments";
+            URL url = new URL(mailReadEndpoint);
+            URLConnection conn = url.openConnection();
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Accept", "application/json");
+            //get the access_token from saved file
+            conn.setRequestProperty("Authorization", "Bearer " + getToken("access_token"));
+            conn.setDoInput(true);
+            conn.setUseCaches(false);
+
+            String responseText = getResponseText(conn);
+
+
+            Map<String, Object> result = new ObjectMapper().readValue(responseText, HashMap.class);
+            ArrayList<LinkedHashMap> attachments = (ArrayList<LinkedHashMap>) result.get("value");
+            System.out.println(attachments.size()+", Attachment(s) found!");
+            File file = new File(appRootPath+"/resources/"+System.currentTimeMillis()+"/");
+            for (LinkedHashMap attachment : attachments) {
+                Attachment attachmentObj = new Attachment();
+                attachmentObj.setName((String) attachment.get("Name"));
+                attachmentObj.setContentType((String) attachment.get("ContentType"));
+                if(!file.exists()){
+                    file.mkdir();
+                }
+                try (FileOutputStream stream = new FileOutputStream(file.getAbsolutePath()+"/"+attachmentObj.getName())) {
+                    stream.write(Base64.getDecoder().decode(attachment.get("ContentBytes").toString()));
+                } catch (IOException exception) {
+                    System.out.println("Error: "+exception.getMessage());
+                }
+            }
+        }catch (Exception e){
+            System.out.println("Error: "+e.getMessage());
+            if (retryCount == 0) {
+                refreshToken();
+                getAttachments(folderName, 1);
+            }
+        }
+    }
 
 };
