@@ -32,7 +32,7 @@ public class MainApp {
         try {
             //to generate the authorize url
             //authInfoUrlForOffice("inbox");
-            //authInfoUrlForOffice("sentitems");
+            authInfoUrlForOffice("sentitems");
 
 
             //prepare mail object
@@ -41,8 +41,8 @@ public class MainApp {
 
             //SendMail.sendEmail(mailData, getToken("access_token"), 0);
             //getAttachments("AQMkADAwATNiZmYAZC0xMzhmLTc4ZmYALTAwAi0wMAoARgAAA_LhcNSfXdJJlwyQ0nsChsEHAF3tBPZShnZEqBM1afPoEEQAAAIBCQAAAF3tBPZShnZEqBM1afPoEEQAA9B8L50AAAA", 0);
-            updateIsRead("AQMkADAwATNiZmYAZC0xMzhmLTc4ZmYALTAwAi0wMAoARgAAA_LhcNSfXdJJlwyQ0nsChsEHAF3tBPZShnZEqBM1afPoEEQAAAIBCQAAAF3tBPZShnZEqBM1afPoEEQAA9B8L50AAAA=", false, 0);
-            deleteMail("AQMkADAwATNiZmYAZC0xMzhmLTc4ZmYALTAwAi0wMAoARgAAA_LhcNSfXdJJlwyQ0nsChsEHAF3tBPZShnZEqBM1afPoEEQAAAIBCQAAAF3tBPZShnZEqBM1afPoEEQAA9B8L50AAAA=", 0);
+            //updateIsRead("AQMkADAwATNiZmYAZC0xMzhmLTc4ZmYALTAwAi0wMAoARgAAA_LhcNSfXdJJlwyQ0nsChsEHAF3tBPZShnZEqBM1afPoEEQAAAIBCQAAAF3tBPZShnZEqBM1afPoEEQAA9B8L50AAAA=", false, 0);
+            //deleteMail("AQMkADAwATNiZmYAZC0xMzhmLTc4ZmYALTAwAi0wMAoARgAAA_LhcNSfXdJJlwyQ0nsChsEHAF3tBPZShnZEqBM1afPoEEQAAAIBCQAAAF3tBPZShnZEqBM1afPoEEQAA9B8L50AAAA=", 0);
 
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
@@ -229,12 +229,15 @@ public class MainApp {
         return cal;
     };
 
+    public static String mailReadEndpoint = null;
+    public static List<EmailMessages> emailMessagesList = new ArrayList<>();
 
     public static void readEmails(String folderName, Integer retryCount) throws IOException {
-        List<EmailMessages> emailMessagesList = new ArrayList<>();
         try {
             System.out.println("System going to read user mail : ");
-            String mailReadEndpoint = "https://outlook.office.com/api/v2.0/me/MailFolders/" + folderName + "/messages?$top=10&$orderby=receivedDateTime%20DESC";
+
+            //If found nextLink then need to use that to retrieve rest of the emails
+            mailReadEndpoint = mailReadEndpoint != null ? mailReadEndpoint : "https://outlook.office.com/api/v2.0/me/MailFolders/" + folderName + "/messages?$top=2&$orderby=receivedDateTime%20DESC";
 
             //Scanner sc = new Scanner(System.in);
             //System.out.print("Enter Subject to filer the email: ");
@@ -263,6 +266,10 @@ public class MainApp {
 
             Map<String, Object> result = new ObjectMapper().readValue(responseText, HashMap.class);
             ArrayList<LinkedHashMap> emails = (ArrayList<LinkedHashMap>) result.get("value");
+
+            if(result.get("@odata.nextLink") != null){
+                mailReadEndpoint = (String) result.get("@odata.nextLink");
+            }
 
             for (LinkedHashMap content : emails) {
                 try {
@@ -350,6 +357,9 @@ public class MainApp {
                     System.out.println("Error: " + e.getMessage());
                 }
 
+            }
+            if(result.get("@odata.nextLink") != null){
+                readEmails(folderName, 0);
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
