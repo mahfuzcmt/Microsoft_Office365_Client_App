@@ -237,7 +237,7 @@ public class MainApp {
             System.out.println("System going to read user mail : ");
 
             //If found nextLink then need to use that to retrieve rest of the emails
-            mailReadEndpoint = mailReadEndpoint != null ? mailReadEndpoint : "https://outlook.office.com/api/v2.0/me/MailFolders/" + folderName + "/messages?$top=2&$orderby=receivedDateTime%20DESC";
+            mailReadEndpoint = mailReadEndpoint != null ? mailReadEndpoint : "https://outlook.office.com/api/v2.0/me/MailFolders/" + folderName + "/messages?$top=10&$orderby=receivedDateTime%20DESC";
 
             //Scanner sc = new Scanner(System.in);
             //System.out.print("Enter Subject to filer the email: ");
