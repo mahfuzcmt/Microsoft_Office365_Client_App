@@ -32,7 +32,8 @@ public class MainApp {
         try {
             //to generate the authorize url
             //authInfoUrlForOffice("inbox");
-            authInfoUrlForOffice("sentitems");
+            createDraft();
+            //authInfoUrlForOffice("sentitems");
 
 
             //prepare mail object
@@ -67,7 +68,7 @@ public class MainApp {
                 for (CharSequence c : scopes) {
                     scope.add(c);
                 }
-                String forwardURL = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize" + "?client_id=" + URLEncoder.encode(client_id, StandardCharsets.UTF_8);
+                String forwardURL = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize" + "?client_id=" + URLEncoder.encode(client_id, String.valueOf(StandardCharsets.UTF_8));
                 forwardURL += "&redirect_uri=" + redirectURI + "&response_type=code";
                 forwardURL += "&scope=" + scope + "&state=" + redirectURI;
                 url = forwardURL;
@@ -245,10 +246,10 @@ public class MainApp {
             String from = null; //sc.nextLine();
 
             if(subject != null){
-                mailReadEndpoint +="&?$search=subject:"+URLEncoder.encode(subject, StandardCharsets.UTF_8);
+                mailReadEndpoint +="&?$search=subject:"+URLEncoder.encode(subject, String.valueOf(StandardCharsets.UTF_8));
             }
             if(from != null){
-                mailReadEndpoint +="&?$search=from:"+URLEncoder.encode(from, StandardCharsets.UTF_8);
+                mailReadEndpoint +="&?$search=from:"+URLEncoder.encode(from, String.valueOf(StandardCharsets.UTF_8));
             }
             //If you need more filtering here is the list of available properties >> https://docs.microsoft.com/en-us/Exchange/policy-and-compliance/ediscovery/message-properties-and-search-operators?redirectedfrom=MSDN&view=exchserver-2019
 
@@ -384,7 +385,7 @@ public class MainApp {
     }
 
 
-    public static void getAttachments(String messageId, Integer retryCount) throws IOException {
+    public static ArrayList<LinkedHashMap> getAttachments(String messageId, Integer retryCount) throws IOException {
         try{
             String mailReadEndpoint = "https://outlook.office.com/api/v2.0/me/messages/"+messageId+"/attachments";
             URL url = new URL(mailReadEndpoint);
@@ -392,7 +393,7 @@ public class MainApp {
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("Accept", "application/json");
             //get the access_token from saved file
-            conn.setRequestProperty("Authorization", "Bearer " + getToken("access_token"));
+            conn.setRequestProperty("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJub25jZSI6IjFWUzFoWjJod3FWOG84MXVselVidzI5YV9MQmpveW00UEdLdGxveVdvQUUiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwczovL291dGxvb2sub2ZmaWNlLmNvbSIsImlzcyI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0L2I4OWUzMjk0LWU4ZTEtNDc3OS05MmJhLTRiMzFmYTk2NGRkNS8iLCJpYXQiOjE2NTkyODM1NjYsIm5iZiI6MTY1OTI4MzU2NiwiZXhwIjoxNjU5Mjg3NDY2LCJhY2N0IjowLCJhY3IiOiIxIiwiYWlvIjoiQVRRQXkvOFRBQUFBY2tFeEh4TnRFMHpvclIwU3Qwb2k1aUxPOXRPZ3J6UHpoR1pTM1B3YlZvWjkzaGFNN3NhTUNsU0c2RHo5eGMzMiIsImFtciI6WyJwd2QiXSwiYXBwX2Rpc3BsYXluYW1lIjoiSE9MSVNUSUNfQ1JNIiwiYXBwaWQiOiI1NTU0YjkxZC1kNGZiLTQ4MmItYmNkMi0yYmIxMTg5Mjc2NjEiLCJhcHBpZGFjciI6IjEiLCJlbmZwb2xpZHMiOltdLCJmYW1pbHlfbmFtZSI6IlZpdGV0emFraXMiLCJnaXZlbl9uYW1lIjoiTWFub2xpcyIsImlwYWRkciI6Ijg1LjczLjUxLjMiLCJuYW1lIjoiTWFub2xpcyBWaXRldHpha2lzIiwib2lkIjoiZmE4YWJjMDgtZmMyZS00NDMzLTg4YmEtY2ViM2MxZTk2YzU1IiwicHVpZCI6IjEwMDMyMDAxREM5MUM4QjMiLCJyaCI6IjAuQVlJQWxES2V1T0hvZVVlU3Vrc3gtcFpOMVFJQUFBQUFBUEVQemdBQUFBQUFBQUNDQURnLiIsInNjcCI6Ik1haWwuUmVhZCBNYWlsLlJlYWRXcml0ZSBNYWlsLlJlYWRXcml0ZS5TaGFyZWQgTWFpbC5TZW5kIiwic2lkIjoiY2Y0YzY0NmUtNmZmMS00YjEwLTgyZmUtODA4ZDZkMGYzY2U3Iiwic3ViIjoiRWJrRXFUY2RUZm5RSHFsNm5mUGFaUHpSb1ZUWlp3alNRT2NxSjJLdkJNNCIsInRpZCI6ImI4OWUzMjk0LWU4ZTEtNDc3OS05MmJhLTRiMzFmYTk2NGRkNSIsInVuaXF1ZV9uYW1lIjoidml0ZXR6YWtpcy5tYW5vbGlzQGhvbGlzdGljLWNzLmdyIiwidXBuIjoidml0ZXR6YWtpcy5tYW5vbGlzQGhvbGlzdGljLWNzLmdyIiwidXRpIjoiZjBaSUdDY2U2RXFYWHgtUFRGcXhBQSIsInZlciI6IjEuMCIsIndpZHMiOlsiYjc5ZmJmNGQtM2VmOS00Njg5LTgxNDMtNzZiMTk0ZTg1NTA5Il19.YAMfrwLmd9kei-WDtsrg7uQjUrSdRu36F-GZL2iWhpWryHPWnAQC81fpF9Hliy9bNsArf3Er9JInrmY_iNGjG5mnFXoeqZvSNxbYbMPjRyrqejaIqFHLuzT9-T-EfQbbrHE9qPMMbKgmxHezVPPLgEQ56EZ0-JgeeUJVkUUr-qNyV9UvRU-NsrB763Ywu-BxaqwkxgPD8ZEupNitI8RNBrkcXdThFNJHs0J6PWiizFwQ53wZ0tNguJkPWgweo9wAUXZhbODYVSBWGlWiYo28gqxjsctVRLgB1lv80VUQX-JTW1H3Jo19CWjmP7aAcyRO7xij-grsihkXK5porLdz2w");
             conn.setDoInput(true);
             conn.setUseCaches(false);
 
@@ -423,7 +424,10 @@ public class MainApp {
                 getAttachments(folderName, 1);
             }
         }
+        return null;
     }
+
+
 
     public static void allowMethods(String methods) {
         try {
@@ -503,5 +507,44 @@ public class MainApp {
             }
         }
     }
+
+
+    public static void createDraft() throws IOException {
+
+        String post = "{\n" +
+                "  \"Subject\": \"Did you see last night's game?\",\n" +
+                "  \"Importance\": \"Low\",\n" +
+                "  \"Body\": {\n" +
+                "    \"ContentType\": \"HTML\",\n" +
+                "    \"Content\": \"They were <b>awesome</b>!\"\n" +
+                "  },\n" +
+                "  \"ToRecipients\": [\n" +
+                "    {\n" +
+                "      \"EmailAddress\": {\n" +
+                "        \"Address\": \"mahfuzcmt@gmail.com\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
+        String requestURL = "https://outlook.office.com/api/v2.0/me/MailFolders/drafts/messages";
+
+        URL url = new URL(requestURL);
+        URLConnection conn = url.openConnection();
+        conn.setDoInput(true);
+        conn.setDoOutput(true);
+        conn.setUseCaches(false);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Accept", "application/json");
+        conn.setRequestProperty("Authorization", "Bearer " + getToken("access_token"));
+        OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
+        writer.write(post);
+        writer.flush();
+        writer.close();
+        String responseText = getResponseText(conn);
+        System.out.print(responseText);
+        System.out.println("successfully draft!");
+    }
+
 
 };
