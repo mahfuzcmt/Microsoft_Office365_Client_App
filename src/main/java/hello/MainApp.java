@@ -30,15 +30,20 @@ public class MainApp {
     public static void main(String[] args) {
         System.out.println("Application started....");
         try {
+
+            FbLeadCollector.collectLeads();
+
+
+
             //to generate the authorize url
             //authInfoUrlForOffice("inbox");
-            createDraft();
+            //createDraft();
             //authInfoUrlForOffice("sentitems");
 
 
             //prepare mail object
-            LinkedHashMap mailData = new LinkedHashMap();
-            mailData.put("mailContent", "<h1> Hey</h1>");
+            //LinkedHashMap mailData = new LinkedHashMap();
+           // mailData.put("mailContent", "<h1> Hey</h1>");
 
             //SendMail.sendEmail(mailData, getToken("access_token"), 0);
             //getAttachments("AQMkADAwATNiZmYAZC0xMzhmLTc4ZmYALTAwAi0wMAoARgAAA_LhcNSfXdJJlwyQ0nsChsEHAF3tBPZShnZEqBM1afPoEEQAAAIBCQAAAF3tBPZShnZEqBM1afPoEEQAA9B8L50AAAA", 0);
