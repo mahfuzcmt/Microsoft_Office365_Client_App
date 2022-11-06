@@ -17,27 +17,12 @@ public class FbLeadCollector {
 
        System.out.println("Going to Collect Leads....");
 
-        for (int i = 0; i < 10000; i++) {
-            // Create a neat value object to hold the URL
-            URL url = new URL("https://money-ah53y.autos/732050980621");
-
-// Open a connection(?) on the URL(??) and cast the response(???)
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-// Now it's "open", we can set the request method, headers etc.
-            connection.setRequestProperty("accept", "application/json");
-
-// This line makes the request
-            InputStream responseStream = connection.getInputStream();
-
-            System.out.println(responseStream);
-        }
 
 
 
 
 
-       /* String access_token = "EAAVjR03FEAMBADYEIRWeDsWHAUO1GhWEDczy6LZCa7cyx4H06RsshhkQPch0OFAN0foit9JRBVec34yr3RYN2PEWZBeqKLlAyz6E3NeMPHQx432Gt5S1hzd05L3kFaOWBVlZBHJks1Fs4jD1smSPsxBqvPAei1pAh8cwTXlQgjaJkx4OVo98zhBHUACIWAZD";
+       String access_token = "EAAVjR03FEAMBAD5drOlScQP185xQftfXtqa4tBI17jHJTjJ2gtZC5ZBwUxtb2sl7BlwJ1QgpmUVB5NPK05JI2aOZAhKHPEEeE1yoYxkvFIhtn9LwNI6uarC1IuRYCtzhGjAA1kapGPj36ly5OeAx25Oxw05goC2CTFa1iKI6qJlSFeTQhS5w6zx7spWS7IZD";
         String app_secret = "8f04926aea96d6778c5f2980467ea496";
         String app_id = "1516532782141443";
         String id = "762451361674454";
@@ -48,7 +33,7 @@ public class FbLeadCollector {
 
         } catch (APIException e) {
             e.printStackTrace();
-        }*/
+        }
 
     }
 
